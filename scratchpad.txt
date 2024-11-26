@@ -1,0 +1,35 @@
+select * from sample_table;
+select * from sample_table where id=3;
+select * from sample2 where age=40;
+select * from sample where salary=5;
+select * from sample where name='Alice';
+SELECT * FROM pg_stat_all_tables WHERE relname = 'sample_table';
+select * from sample_table where salary>60000;
+
+CREATE TABLE sample (    id SERIAL PRIMARY KEY,    name VARCHAR(10) NOT NULL,    age INT);
+
+CREATE TABLE sample (id SERIAL PRIMARY KEY, name VARCHAR(10) NOT NULL, age INT);
+INSERT INTO sample (name, age) VALUES ('Alice', 25);
+INSERT INTO sample (name, age) VALUES ('Bob', 30);
+INSERT INTO sample (name, age) VALUES ('Charlie', 35);
+INSERT INTO sample (name, age) VALUES ('Diana', 40);
+INSERT INTO sample (name, age) VALUES ('Eve', 45);
+
+ALTER TABLE sample ADD COLUMN salary NUMERIC;
+
+UPDATE sample SET salary = 5 WHERE name = 'Alice';
+UPDATE sample SET salary = 6 WHERE name = 'Bob';
+UPDATE sample SET salary = 7 WHERE name = 'Charlie';
+UPDATE sample SET salary = 8 WHERE name = 'Diana';
+UPDATE sample SET salary = 9 WHERE name = 'Eve';
+
+CREATE VIEW pg_stat_column_usage AS SELECT     relid,     attnum,   pg_stat_get_column_where_usage_count(relid, attnum) AS where_usage_count FROM pg_attribute WHERE     attnum > 0 AND NOT attisdropped;'
+
+select id,name,age from sample2 where age=30 UNION select * from sample where name='Alic';
+
+
+select oid from pg_class where relname='sample';
+select oid from pg_class where relname='sample2';
+
+select * from pg_indexes where tablename='sample2';
+DROP index auto_32770_3;
