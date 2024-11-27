@@ -24,6 +24,7 @@ OBJS = \
 	postmaster.o \
 	startup.o \
 	syslogger.o \
-	walwriter.o
+	walwriter.o \
+	bgworker_create_index.o
 
 include $(top_srcdir)/src/backend/common.mk

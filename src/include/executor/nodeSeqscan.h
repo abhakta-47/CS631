@@ -27,5 +27,7 @@ extern void ExecSeqScanInitializeDSM(SeqScanState *node, ParallelContext *pcxt);
 extern void ExecSeqScanReInitializeDSM(SeqScanState *node, ParallelContext *pcxt);
 extern void ExecSeqScanInitializeWorker(SeqScanState *node,
 										ParallelWorkerContext *pwcxt);
+extern void auto_create_index_main(Datum main_arg);
+									
 
 #endif							/* NODESEQSCAN_H */

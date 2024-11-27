@@ -41,6 +41,9 @@
 #include "catalog/pg_am_d.h"
 #include "catalog/index.h"
 #include "commands/defrem.h"
+#include "postmaster/bgworker_create_index.h"
+#include "postmaster/postmaster.h"
+#include "storage/ipc.h"
 
 static TupleTableSlot *SeqNext(SeqScanState *node);
 
@@ -214,14 +217,14 @@ bool should_create_index(int relid, int attrid, int freq){
 }
 
 void create_index(Oid relationOid, int attributeId) {
-	char indexName[NAMEDATALEN];
+    char indexName[NAMEDATALEN];
     snprintf(indexName, NAMEDATALEN, "auto_%u_%d", relationOid, attributeId);
     Relation rel;
     IndexInfo *indexInfo;
     List *indexColNames;
     Oid indexOid;
     Oid classObjectId[INDEX_MAX_KEYS];
-	Oid collationObjId[INDEX_MAX_KEYS];
+    Oid collationObjId[INDEX_MAX_KEYS];
     int16 coloptions[INDEX_MAX_KEYS];
     Datum reloptions;
     bool isnull;
@@ -233,7 +236,7 @@ void create_index(Oid relationOid, int attributeId) {
     indexInfo = makeNode(IndexInfo);
     indexInfo->ii_NumIndexAttrs = 1;
     indexInfo->ii_NumIndexKeyAttrs = 1;
-	indexInfo->ii_IndexAttrNumbers[0] = attributeId;
+    indexInfo->ii_IndexAttrNumbers[0] = attributeId;
     indexInfo->ii_Expressions = NIL;
     indexInfo->ii_ExpressionsState = NIL;
     indexInfo->ii_Predicate = NIL;
@@ -249,10 +252,10 @@ void create_index(Oid relationOid, int attributeId) {
     indexColNames = list_make1(makeString("index_col"));
 
     // Set class object ID and column options
-	classObjectId[0] = GetDefaultOpClass(rel->rd_att->attrs[attributeId - 1].atttypid, BTREE_AM_OID);
+    classObjectId[0] = GetDefaultOpClass(rel->rd_att->attrs[attributeId - 1].atttypid, BTREE_AM_OID);
 
     coloptions[0] = 0;
-	collationObjId[0] = InvalidOid;
+    collationObjId[0] = InvalidOid;
 
     // Set relation options
     reloptions = (Datum)0; // transformRelOptions((Datum) 0, NULL, NULL, NULL, false, false);
@@ -264,12 +267,12 @@ void create_index(Oid relationOid, int attributeId) {
                             InvalidOid,
                             InvalidOid,
                             InvalidOid,
-							InvalidRelFileNumber,
+                            InvalidRelFileNumber,
                             indexInfo,
                             indexColNames,
                             BTREE_AM_OID,
                             rel->rd_rel->reltablespace,
-							collationObjId,
+                            collationObjId,
                             classObjectId,
                             coloptions,
                             reloptions,
@@ -281,6 +284,19 @@ void create_index(Oid relationOid, int attributeId) {
 
     // Close the relation
     table_close(rel, NoLock);
+}
+
+void auto_create_index_main(Datum main_arg) {
+    BackgroundWorkerUnblockSignals();
+
+    WorkerArgs *args = (WorkerArgs *) DatumGetPointer(main_arg);
+
+    StartTransactionCommand();
+    elog(INFO, "Creating index on attribute: %d rel: %u\n", args->attributeId, args->relationOid);
+    create_index(args->relationOid, args->attributeId);
+    CommitTransactionCommand();
+
+    proc_exit(0);
 }
 
 /* ----------------------------------------------------------------
@@ -344,11 +360,10 @@ ExecInitSeqScan(SeqScan *node, EState *estate, int eflags)
 		// for now idx 0 is hardcoded; works for only one attribute in where clause
 		AttrNumber attnum = qual->steps[0].d.var.attnum;
 		Oid relid = scanstate->ss.ss_currentRelation->rd_id;
-		printf("attrid: %d relid %d\n", attnum, relid);
 		int freq = update_seq_attr_file(attnum, relid);
 		if(should_create_index(relid,attnum, freq)){
-			elog(WARNING, "Creating index on attribute: %d rel: %d",attnum, relid);
-			create_index(relid, attnum);
+			elog(INFO, "Creating index on attribute: %d rel: %d\n",attnum, relid);
+			bg_index_create(relid, attnum);
 		}
 	}
 
