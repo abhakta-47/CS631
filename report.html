@@ -1,0 +1,446 @@
+<!DOCTYPE html>
+<html>
+<head>
+<title>report.md</title>
+<meta http-equiv="Content-type" content="text/html;charset=UTF-8">
+
+<style>
+/* https://github.com/microsoft/vscode/blob/master/extensions/markdown-language-features/media/markdown.css */
+/*---------------------------------------------------------------------------------------------
+ *  Copyright (c) Microsoft Corporation. All rights reserved.
+ *  Licensed under the MIT License. See License.txt in the project root for license information.
+ *--------------------------------------------------------------------------------------------*/
+
+body {
+	font-family: var(--vscode-markdown-font-family, -apple-system, BlinkMacSystemFont, "Segoe WPC", "Segoe UI", "Ubuntu", "Droid Sans", sans-serif);
+	font-size: var(--vscode-markdown-font-size, 14px);
+	padding: 0 26px;
+	line-height: var(--vscode-markdown-line-height, 22px);
+	word-wrap: break-word;
+}
+
+#code-csp-warning {
+	position: fixed;
+	top: 0;
+	right: 0;
+	color: white;
+	margin: 16px;
+	text-align: center;
+	font-size: 12px;
+	font-family: sans-serif;
+	background-color:#444444;
+	cursor: pointer;
+	padding: 6px;
+	box-shadow: 1px 1px 1px rgba(0,0,0,.25);
+}
+
+#code-csp-warning:hover {
+	text-decoration: none;
+	background-color:#007acc;
+	box-shadow: 2px 2px 2px rgba(0,0,0,.25);
+}
+
+body.scrollBeyondLastLine {
+	margin-bottom: calc(100vh - 22px);
+}
+
+body.showEditorSelection .code-line {
+	position: relative;
+}
+
+body.showEditorSelection .code-active-line:before,
+body.showEditorSelection .code-line:hover:before {
+	content: "";
+	display: block;
+	position: absolute;
+	top: 0;
+	left: -12px;
+	height: 100%;
+}
+
+body.showEditorSelection li.code-active-line:before,
+body.showEditorSelection li.code-line:hover:before {
+	left: -30px;
+}
+
+.vscode-light.showEditorSelection .code-active-line:before {
+	border-left: 3px solid rgba(0, 0, 0, 0.15);
+}
+
+.vscode-light.showEditorSelection .code-line:hover:before {
+	border-left: 3px solid rgba(0, 0, 0, 0.40);
+}
+
+.vscode-light.showEditorSelection .code-line .code-line:hover:before {
+	border-left: none;
+}
+
+.vscode-dark.showEditorSelection .code-active-line:before {
+	border-left: 3px solid rgba(255, 255, 255, 0.4);
+}
+
+.vscode-dark.showEditorSelection .code-line:hover:before {
+	border-left: 3px solid rgba(255, 255, 255, 0.60);
+}
+
+.vscode-dark.showEditorSelection .code-line .code-line:hover:before {
+	border-left: none;
+}
+
+.vscode-high-contrast.showEditorSelection .code-active-line:before {
+	border-left: 3px solid rgba(255, 160, 0, 0.7);
+}
+
+.vscode-high-contrast.showEditorSelection .code-line:hover:before {
+	border-left: 3px solid rgba(255, 160, 0, 1);
+}
+
+.vscode-high-contrast.showEditorSelection .code-line .code-line:hover:before {
+	border-left: none;
+}
+
+img {
+	max-width: 100%;
+	max-height: 100%;
+}
+
+a {
+	text-decoration: none;
+}
+
+a:hover {
+	text-decoration: underline;
+}
+
+a:focus,
+input:focus,
+select:focus,
+textarea:focus {
+	outline: 1px solid -webkit-focus-ring-color;
+	outline-offset: -1px;
+}
+
+hr {
+	border: 0;
+	height: 2px;
+	border-bottom: 2px solid;
+}
+
+h1 {
+	padding-bottom: 0.3em;
+	line-height: 1.2;
+	border-bottom-width: 1px;
+	border-bottom-style: solid;
+}
+
+h1, h2, h3 {
+	font-weight: normal;
+}
+
+table {
+	border-collapse: collapse;
+}
+
+table > thead > tr > th {
+	text-align: left;
+	border-bottom: 1px solid;
+}
+
+table > thead > tr > th,
+table > thead > tr > td,
+table > tbody > tr > th,
+table > tbody > tr > td {
+	padding: 5px 10px;
+}
+
+table > tbody > tr + tr > td {
+	border-top: 1px solid;
+}
+
+blockquote {
+	margin: 0 7px 0 5px;
+	padding: 0 16px 0 10px;
+	border-left-width: 5px;
+	border-left-style: solid;
+}
+
+code {
+	font-family: Menlo, Monaco, Consolas, "Droid Sans Mono", "Courier New", monospace, "Droid Sans Fallback";
+	font-size: 1em;
+	line-height: 1.357em;
+}
+
+body.wordWrap pre {
+	white-space: pre-wrap;
+}
+
+pre:not(.hljs),
+pre.hljs code > div {
+	padding: 16px;
+	border-radius: 3px;
+	overflow: auto;
+}
+
+pre code {
+	color: var(--vscode-editor-foreground);
+	tab-size: 4;
+}
+
+/** Theming */
+
+.vscode-light pre {
+	background-color: rgba(220, 220, 220, 0.4);
+}
+
+.vscode-dark pre {
+	background-color: rgba(10, 10, 10, 0.4);
+}
+
+.vscode-high-contrast pre {
+	background-color: rgb(0, 0, 0);
+}
+
+.vscode-high-contrast h1 {
+	border-color: rgb(0, 0, 0);
+}
+
+.vscode-light table > thead > tr > th {
+	border-color: rgba(0, 0, 0, 0.69);
+}
+
+.vscode-dark table > thead > tr > th {
+	border-color: rgba(255, 255, 255, 0.69);
+}
+
+.vscode-light h1,
+.vscode-light hr,
+.vscode-light table > tbody > tr + tr > td {
+	border-color: rgba(0, 0, 0, 0.18);
+}
+
+.vscode-dark h1,
+.vscode-dark hr,
+.vscode-dark table > tbody > tr + tr > td {
+	border-color: rgba(255, 255, 255, 0.18);
+}
+
+</style>
+
+<style>
+/* Tomorrow Theme */
+/* http://jmblog.github.com/color-themes-for-google-code-highlightjs */
+/* Original theme - https://github.com/chriskempson/tomorrow-theme */
+
+/* Tomorrow Comment */
+.hljs-comment,
+.hljs-quote {
+	color: #8e908c;
+}
+
+/* Tomorrow Red */
+.hljs-variable,
+.hljs-template-variable,
+.hljs-tag,
+.hljs-name,
+.hljs-selector-id,
+.hljs-selector-class,
+.hljs-regexp,
+.hljs-deletion {
+	color: #c82829;
+}
+
+/* Tomorrow Orange */
+.hljs-number,
+.hljs-built_in,
+.hljs-builtin-name,
+.hljs-literal,
+.hljs-type,
+.hljs-params,
+.hljs-meta,
+.hljs-link {
+	color: #f5871f;
+}
+
+/* Tomorrow Yellow */
+.hljs-attribute {
+	color: #eab700;
+}
+
+/* Tomorrow Green */
+.hljs-string,
+.hljs-symbol,
+.hljs-bullet,
+.hljs-addition {
+	color: #718c00;
+}
+
+/* Tomorrow Blue */
+.hljs-title,
+.hljs-section {
+	color: #4271ae;
+}
+
+/* Tomorrow Purple */
+.hljs-keyword,
+.hljs-selector-tag {
+	color: #8959a8;
+}
+
+.hljs {
+	display: block;
+	overflow-x: auto;
+	color: #4d4d4c;
+	padding: 0.5em;
+}
+
+.hljs-emphasis {
+	font-style: italic;
+}
+
+.hljs-strong {
+	font-weight: bold;
+}
+</style>
+
+<style>
+/*
+ * Markdown PDF CSS
+ */
+
+ body {
+	font-family: -apple-system, BlinkMacSystemFont, "Segoe WPC", "Segoe UI", "Ubuntu", "Droid Sans", sans-serif, "Meiryo";
+	padding: 0 12px;
+}
+
+pre {
+	background-color: #f8f8f8;
+	border: 1px solid #cccccc;
+	border-radius: 3px;
+	overflow-x: auto;
+	white-space: pre-wrap;
+	overflow-wrap: break-word;
+}
+
+pre:not(.hljs) {
+	padding: 23px;
+	line-height: 19px;
+}
+
+blockquote {
+	background: rgba(127, 127, 127, 0.1);
+	border-color: rgba(0, 122, 204, 0.5);
+}
+
+.emoji {
+	height: 1.4em;
+}
+
+code {
+	font-size: 14px;
+	line-height: 19px;
+}
+
+/* for inline code */
+:not(pre):not(.hljs) > code {
+	color: #C9AE75; /* Change the old color so it seems less like an error */
+	font-size: inherit;
+}
+
+/* Page Break : use <div class="page"/> to insert page break
+-------------------------------------------------------- */
+.page {
+	page-break-after: always;
+}
+
+</style>
+
+<script src="https://unpkg.com/mermaid/dist/mermaid.min.js"></script>
+</head>
+<body>
+  <script>
+    mermaid.initialize({
+      startOnLoad: true,
+      theme: document.body.classList.contains('vscode-dark') || document.body.classList.contains('vscode-high-contrast')
+          ? 'dark'
+          : 'default'
+    });
+  </script>
+<h1 id="automatic-index-creation-for-postgresql-based-on-relation-scans">Automatic Index Creation for PostgreSQL Based on Relation Scans</h1>
+<h3 id="submitted-by">Submitted BY</h3>
+<ul>
+<li>Arnab Bhakta (23m0835)</li>
+<li>Pranav Shinde (23m0833)</li>
+</ul>
+<h2 id="motivation">Motivation</h2>
+<p>In PostgreSQL, full table scans can be inefficient, particularly when an index could greatly enhance query performance. Manually creating indexes can be tedious and demands a thorough understanding of the database schema and query patterns. Automating the index creation process can improve query performance without manual intervention, making the database more efficient and easier to use.</p>
+<h2 id="work-done">Work Done</h2>
+<ul>
+<li><input type="checkbox" id="checkbox0" checked="true"><label for="checkbox0">Track Full Relation Scans:</label>
+<ul>
+<li><input type="checkbox" id="checkbox1" checked="true"><label for="checkbox1">Modify the code to monitor the number of full relation scans.</label></li>
+<li><input type="checkbox" id="checkbox2" checked="true"><label for="checkbox2">Store this tracking information in an appropriate data structure.</label></li>
+</ul>
+</li>
+<li><input type="checkbox" id="checkbox3" checked="true"><label for="checkbox3">Cost Calculation:</label>
+<ul>
+<li><input type="checkbox" id="checkbox4" checked="true"><label for="checkbox4">Implement functions to calculate the cost of full scans and the cost of index creation.</label></li>
+<li><input type="checkbox" id="checkbox5" checked="true"><label for="checkbox5">Initially use placeholder values for these costs, with the option to refine them later.</label></li>
+</ul>
+</li>
+<li><input type="checkbox" id="checkbox6" checked="true"><label for="checkbox6">Threshold Check and Index Creation:</label>
+<ul>
+<li><input type="checkbox" id="checkbox7" checked="true"><label for="checkbox7">Trigger the index creation process when the number of full scans exceeds a threshold (calculated as total cost of scans &gt; cost of index creation).</label></li>
+<li><input type="checkbox" id="checkbox8" checked="true"><label for="checkbox8">Automatically create indexes.</label></li>
+</ul>
+</li>
+</ul>
+<h2 id="design-choices">Design Choices</h2>
+<h3 id="existing-flow">Existing Flow</h3>
+<pre class="hljs"><code><div>main(<span class="hljs-keyword">int</span> argc, <span class="hljs-keyword">char</span> ** argv)
+PostgresSingleUserMain(<span class="hljs-keyword">int</span> argc, <span class="hljs-keyword">char</span> ** argv, <span class="hljs-keyword">const</span> <span class="hljs-keyword">char</span> * username)
+PostgresMain(<span class="hljs-keyword">const</span> <span class="hljs-keyword">char</span> * dbname, <span class="hljs-keyword">const</span> <span class="hljs-keyword">char</span> * username)
+exec_simple_query(<span class="hljs-keyword">const</span> <span class="hljs-keyword">char</span> * query_string)
+PortalRun(Portal portal, <span class="hljs-keyword">long</span> count, <span class="hljs-built_in">_Bool</span> isTopLevel, <span class="hljs-built_in">_Bool</span> run_once, DestReceiver * dest, DestReceiver * altdest, QueryCompletion * qc)
+PortalRunSelect(Portal portal, <span class="hljs-built_in">_Bool</span> forward, <span class="hljs-keyword">long</span> count, DestReceiver * dest)
+ExecutorRun(QueryDesc * queryDesc, ScanDirection direction, uint64 count, <span class="hljs-built_in">_Bool</span> execute_once)
+standard_ExecutorRun(QueryDesc * queryDesc, ScanDirection direction, uint64 count, <span class="hljs-built_in">_Bool</span> execute_once)
+ExecutePlan(EState * estate, PlanState * planstate, <span class="hljs-built_in">_Bool</span> use_parallel_mode, CmdType operation, <span class="hljs-built_in">_Bool</span> sendTuples, uint64 numberTuples, ScanDirection direction, DestReceiver * dest, <span class="hljs-built_in">_Bool</span> execute_once)
+ExecProcNode(PlanState * node)
+ExecProcNodeFirst(PlanState * node)
+ExecSeqScan(PlanState * pstate)
+ExecScan(ScanState * node, ExecScanAccessMtd accessMtd, ExecScanRecheckMtd recheckMtd)
+ExecScanFetch(ScanState * node, ExecScanAccessMtd accessMtd, ExecScanRecheckMtd recheckMtd)
+</div></code></pre>
+<h3 id="change-flow">Change Flow</h3>
+<pre class="hljs"><code><div>main(int argc, char ** argv)
+PostgresSingleUserMain(int argc, char ** argv, const char * username)
+PostgresMain(const char * dbname, const char * username)
+exec_simple_query(const char * query_string)
+PortalRun(Portal portal, long count, _Bool isTopLevel, _Bool run_once, DestReceiver * dest, DestReceiver * altdest, QueryCompletion * qc)
+PortalRunSelect(Portal portal, _Bool forward, long count, DestReceiver * dest)
+ExecutorRun(QueryDesc * queryDesc, ScanDirection direction, uint64 count, _Bool execute_once)
+standard_ExecutorRun(QueryDesc * queryDesc, ScanDirection direction, uint64 count, _Bool execute_once)
+ExecutePlan(EState * estate, PlanState * planstate, _Bool use_parallel_mode, CmdType operation, _Bool sendTuples, uint64 numberTuples, ScanDirection direction, DestReceiver * dest, _Bool execute_once)
+ExecProcNode(PlanState * node)
+ExecProcNodeFirst(PlanState * node)
+</div></code></pre>
+<h4 id="execinitseqscanseqscan-node-estate-estate-int-eflags">ExecInitSeqScan(SeqScan *node, EState *estate, int eflags):</h4>
+<pre class="hljs"><code><div>AttrNumber attnum = qual-&gt;steps[<span class="hljs-number">0</span>].d.var.attnum;
+Oid relid = scanstate-&gt;ss.ss_currentRelation-&gt;rd_id;
+<span class="hljs-built_in">printf</span>(<span class="hljs-string">"attrid: %d relid %d\n"</span>, attnum, relid);
+<span class="hljs-keyword">int</span> freq = update_seq_attr_file(attnum, relid);
+<span class="hljs-keyword">if</span>(should_create_index(relid,attnum, freq)){
+    elog(WARNING, <span class="hljs-string">"Creating index on attribute: %d rel: %d"</span>,attnum, relid);
+    create_index(relid, attnum);
+}
+</div></code></pre>
+<pre class="hljs"><code><div>ExecSeqScan(PlanState * pstate)
+ExecScan(ScanState * node, ExecScanAccessMtd accessMtd, ExecScanRecheckMtd recheckMtd)
+ExecScanFetch(ScanState * node, ExecScanAccessMtd accessMtd, ExecScanRecheckMtd recheckMtd)
+</div></code></pre>
+<h3 id="indepth-funtion-designs">Indepth funtion designs</h3>
+<h2 id="in-action">In Action</h2>
+<h2 id="benchmarks">Benchmarks</h2>
+
+</body>
+</html>

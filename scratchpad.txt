@@ -31,5 +31,5 @@ select id,name,age from sample2 where age=30 UNION select * from sample where na
 select oid from pg_class where relname='sample';
 select oid from pg_class where relname='sample2';
 
-select * from pg_indexes where tablename='sample2';
+select * from pg_indexes where tablename='sample';
 DROP index auto_32770_3;
