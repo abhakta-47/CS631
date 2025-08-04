@@ -1,92 +1,123 @@
-# Automatic Index Creation for PostgreSQL Based on Relation Scans
+# 🚀 Automatic Index Creation for PostgreSQL Based on Relation Scans
 
-### Submitted BY
-- Arnab Bhakta (23m0835)
-- Pranav Shinde (23m0833)
+### 🧑‍💻 Submitted By
 
-## Motivation
-In PostgreSQL, full table scans can be inefficient, particularly when an index could greatly enhance query performance. Manually creating indexes can be tedious and demands a thorough understanding of the database schema and query patterns. Automating the index creation process can improve query performance without manual intervention, making the database more efficient and easier to use.
+* Arnab Bhakta (23M0835)
+* Pranav Shinde (23M0833)
 
-## Work Done
-- [x] Track Full Relation Scans:
-    - [x] Modify the code to monitor the number of full relation scans.
-    - [x] Store this tracking information in an appropriate data structure.
-- [x] Cost Calculation:
-    - [x] Implement functions to calculate the cost of full scans and the cost of index creation.
-    - [x] Initially use placeholder values for these costs, with the option to refine them later.
-- [x] Threshold Check and Index Creation:
-    - [x] Trigger the index creation process when the number of full scans exceeds a threshold (calculated as total cost of scans > cost of index creation).
-    - [x] Automatically create indexes.
+---
 
-## Files Changed
-### Auto Create index on threshold breach
+## 💡 Motivation
+
+In PostgreSQL, full table (sequential) scans can lead to inefficient query execution, especially when repeated over large datasets. While adding indexes manually can mitigate this, it requires deep knowledge of the schema and workload, and is not scalable.
+
+Our goal is to automate the creation of indexes based on observed access patterns—specifically, to track frequent full scans and create indexes when beneficial. This brings **self-optimization** to PostgreSQL with **minimal developer intervention**.
+
+---
+
+## ✅ Work Done
+
+* ### 🕵️ Track Full Relation Scans
+
+  * Hooked into `ExecInitSeqScan` to track accesses of attributes involved in sequential scans.
+  * Stored scan counts in a persistent file `seq_attr.txt`.
+
+* ### 📈 Cost-Based Index Creation
+
+  * Computed approximate costs for:
+
+    * Full table scans
+    * Index creation
+    * Index scan
+  * Triggered index creation when the cumulative scan cost surpassed index creation cost.
+
+* ### ⚙️ Automatic Index Creation
+
+  * Index creation initiated via **background worker** to avoid blocking user queries.
+  * Created B-tree indexes on identified `(relid, attrid)` pairs.
+
+---
+
+## 🧩 Files Changed
+
+### 🔧 Initial Scan Monitoring + Threshold-based Trigger
+
+```text
+src/backend/executor/nodeSeqscan.c | +181 lines
 ```
- src/backend/executor/nodeSeqscan.c | 181 ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
- 1 files changed, 181 insertions(+)
-```
-### Create index using BackGroundWorker
-```
- src/backend/executor/nodeSeqscan.c             | 35 +++++++++++++++++++++++++----------
- src/backend/postmaster/Makefile                |  3 ++-
- src/backend/postmaster/bgworker_create_index.c | 60 ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
- src/include/executor/nodeSeqscan.h             |  2 ++
- src/include/postmaster/bgworker_create_index.h | 13 +++++++++++++
- 5 files changed, 102 insertions(+), 11 deletions(-)
+
+### 🔨 Background Worker + Integration
+
+```text
+src/backend/executor/nodeSeqscan.c             | +35 -10 lines
+src/backend/postmaster/Makefile                | +3 lines
+src/backend/postmaster/bgworker_create_index.c | +60 lines
+src/include/executor/nodeSeqscan.h             | +2 lines
+src/include/postmaster/bgworker_create_index.h | +13 lines
 ```
 
-## Design Choices
-### Existing Flow
+---
+
+## 🧠 Design Overview
+
+### 📌 Existing Execution Flow
+
 ```cpp
-main(int argc, char ** argv)
-PostgresSingleUserMain(int argc, char ** argv, const char * username)
-PostgresMain(const char * dbname, const char * username)
-exec_simple_query(const char * query_string)
-PortalRun(Portal portal, long count, _Bool isTopLevel, _Bool run_once, DestReceiver * dest, DestReceiver * altdest, QueryCompletion * qc)
-PortalRunSelect(Portal portal, _Bool forward, long count, DestReceiver * dest)
-ExecutorRun(QueryDesc * queryDesc, ScanDirection direction, uint64 count, _Bool execute_once)
-standard_ExecutorRun(QueryDesc * queryDesc, ScanDirection direction, uint64 count, _Bool execute_once)
-ExecutePlan(EState * estate, PlanState * planstate, _Bool use_parallel_mode, CmdType operation, _Bool sendTuples, uint64 numberTuples, ScanDirection direction, DestReceiver * dest, _Bool execute_once)
-ExecProcNode(PlanState * node)
-ExecProcNodeFirst(PlanState * node)
-ExecSeqScan(PlanState * pstate)
-ExecScan(ScanState * node, ExecScanAccessMtd accessMtd, ExecScanRecheckMtd recheckMtd)
-ExecScanFetch(ScanState * node, ExecScanAccessMtd accessMtd, ExecScanRecheckMtd recheckMtd)
+main
+ └─ PostgresMain
+     └─ exec_simple_query
+         └─ PortalRun
+             └─ ExecutorRun
+                 └─ standard_ExecutorRun
+                     └─ ExecutePlan
+                         └─ ExecProcNode
+                             └─ ExecSeqScan
 ```
-### Change Flow
-```
-main(int argc, char ** argv)
-PostgresSingleUserMain(int argc, char ** argv, const char * username)
-PostgresMain(const char * dbname, const char * username)
-exec_simple_query(const char * query_string)
-PortalRun(Portal portal, long count, _Bool isTopLevel, _Bool run_once, DestReceiver * dest, DestReceiver * altdest, QueryCompletion * qc)
-PortalRunSelect(Portal portal, _Bool forward, long count, DestReceiver * dest)
-ExecutorRun(QueryDesc * queryDesc, ScanDirection direction, uint64 count, _Bool execute_once)
-standard_ExecutorRun(QueryDesc * queryDesc, ScanDirection direction, uint64 count, _Bool execute_once)
-ExecutePlan(EState * estate, PlanState * planstate, _Bool use_parallel_mode, CmdType operation, _Bool sendTuples, uint64 numberTuples, ScanDirection direction, DestReceiver * dest, _Bool execute_once)
-ExecProcNode(PlanState * node)
-ExecProcNodeFirst(PlanState * node)
-```
-#### ExecInitSeqScan(SeqScan *node, EState *estate, int eflags):
+
+### ⚙️ Modified Logic in `ExecInitSeqScan`
+
 ```cpp
 AttrNumber attnum = qual->steps[0].d.var.attnum;
 Oid relid = scanstate->ss.ss_currentRelation->rd_id;
-printf("attrid: %d relid %d\n", attnum, relid);
+
 int freq = update_seq_attr_file(attnum, relid);
-if(should_create_index(relid,attnum, freq)){
-    elog(WARNING, "Creating index on attribute: %d rel: %d",attnum, relid);
+if (should_create_index(relid, attnum, freq)) {
+    elog(WARNING, "Creating index on attribute: %d rel: %d", attnum, relid);
     create_index(relid, attnum);
 }
 ```
-```
-ExecSeqScan(PlanState * pstate)
-ExecScan(ScanState * node, ExecScanAccessMtd accessMtd, ExecScanRecheckMtd recheckMtd)
-ExecScanFetch(ScanState * node, ExecScanAccessMtd accessMtd, ExecScanRecheckMtd recheckMtd)
-```
 
+---
 
-### Indepth funtion designs
+## 🔬 Function Internals
 
-## In Action
+### 📁 `int update_seq_attr_file(int attrid, int relid)`
 
-## Benchmarks
+* Reads `seq_attr.txt` for `(relid, attrid)` entries.
+* Increments count or adds a new one.
+* Writes back updated stats.
+* Returns current frequency.
 
+### 🧮 `bool should_create_index(int relid, int attrid, int freq)`
+
+* Fetches statistics for the relation.
+* Computes:
+
+  * `seq_scan_cost = freq × base_cost`
+  * `index_creation_cost = fixed cost`
+* Returns true if `seq_scan_cost > index_creation_cost`.
+
+### 🏗️ `void create_index(Oid relid, int attrid)`
+
+* Constructs index name (`idx_<relid>_<attrid>`).
+* Builds `IndexInfo` structure.
+* Calls `index_create()` with parameters.
+
+## 📚 References
+
+* [📄 Hacking PostgreSQL – Neil Conway & Gavin Sherry (IITB)](https://www.cse.iitb.ac.in/infolab/Data/Courses/CS631/PostgreSQL-Resources/pg_hack_slides.pdf)
+* [📘 PostgreSQL Internals Documentation](https://www.postgresql.org/docs/current/internals.html)
+
+---
+
+Let me know if you'd like this in PDF, DOCX, or embedded in your codebase as `README.md`.
