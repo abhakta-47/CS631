@@ -117,7 +117,3 @@ if (should_create_index(relid, attnum, freq)) {
 
 * [📄 Hacking PostgreSQL – Neil Conway & Gavin Sherry (IITB)](https://www.cse.iitb.ac.in/infolab/Data/Courses/CS631/PostgreSQL-Resources/pg_hack_slides.pdf)
 * [📘 PostgreSQL Internals Documentation](https://www.postgresql.org/docs/current/internals.html)
-
----
-
-Let me know if you'd like this in PDF, DOCX, or embedded in your codebase as `README.md`.
